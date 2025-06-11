@@ -47,9 +47,14 @@ for _, name in ipairs(peripheral.getNames()) do
     end
 end
 
--- Use first monitor as default for dimension logic
+-- Use first monitor for fallback functions
 local mon = monitors[1]
 local monSide = peripheral.getName(mon)
+
+-- Shortcut: mirror function to all monitors
+local function eachMon(fn)
+    for _, m in ipairs(monitors) do fn(m) end
+end
 local sizex, sizey, dim, oo, offy
 local btnOn, btnOff, invalidDim
 local minb, maxb
@@ -98,22 +103,22 @@ local function drawBox(size, xoff, yoff, color)
         return
     end
     local x,y = mon.getCursorPos()
-    for _, m in ipairs(monitors) do m.setBackgroundColor(...) end
+    eachMon(function(m) end) m.setBackgroundColor(color) end)
     local horizLine = string.rep(" ", size[1])
-    mon.setCursorPos(xoff + 1, yoff + 1)
-    mon.write(horizLine)
-    mon.setCursorPos(xoff + 1, yoff + size[2])
-    mon.write(horizLine)
+    eachMon(function(m) end) m.setCursorPos(xoff + 1, yoff + 1) end)
+    eachMon(function(m) end) m.write(horizLine) end)
+    eachMon(function(m) end) m.setCursorPos(xoff + 1, yoff + size[2]) end)
+    eachMon(function(m) end) m.write(horizLine) end)
 
     -- Draw vertical lines
     for i=0, size[2] - 1 do
-        mon.setCursorPos(xoff + 1, yoff + i + 1)
-        mon.write(" ")
-        mon.setCursorPos(xoff + size[1], yoff + i +1)
-        mon.write(" ")
+        eachMon(function(m) end) m.setCursorPos(xoff + 1, yoff + i + 1) end)
+        eachMon(function(m) end) m.write(" ") end)
+        eachMon(function(m) end) m.setCursorPos(xoff + size[1], yoff + i +1) end)
+        eachMon(function(m) end) m.write(" ") end)
     end
-    mon.setCursorPos(x,y)
-    for _, m in ipairs(monitors) do m.setBackgroundColor(...) end
+    eachMon(function(m) end) m.setCursorPos(x,y) end)
+    eachMon(function(m) end) m.setBackgroundColor(colors.black) end)
 end
 
 --Draw a filled box
@@ -124,13 +129,13 @@ local function drawFilledBox(size, xoff, yoff, colorOut, colorIn)
     local horizLine = string.rep(" ", size[1] - 2)
     drawBox(size, xoff, yoff, colorOut)
     local x,y = mon.getCursorPos()
-    for _, m in ipairs(monitors) do m.setBackgroundColor(...) endcolorIn)
+    eachMon(function(m) end) m.setBackgroundColor(colorIn) end)
     for i=2, size[2] - 1 do
-        mon.setCursorPos(xoff + 2, yoff + i)
-        mon.write(horizLine)
+        eachMon(function(m) end) m.setCursorPos(xoff + 2, yoff + i) end)
+        eachMon(function(m) end) m.write(horizLine) end)
     end
-    for _, m in ipairs(monitors) do m.setBackgroundColor(...) endcolors.black)
-    mon.setCursorPos(x,y)
+    eachMon(function(m) end) m.setBackgroundColor(colors.black) end)
+    eachMon(function(m) end) m.setCursorPos(x,y) end)
 end
 
 --Draws text on the screen
@@ -139,13 +144,13 @@ local function drawText(text, x1, y1, backColor, textColor)
         return
     end
     local x, y = mon.getCursorPos()
-    mon.setCursorPos(x1, y1)
-    for _, m in ipairs(monitors) do m.setBackgroundColor(...) endbackColor)
-    mon.setTextColor(textColor)
-    mon.write(text)
-    mon.setTextColor(colors.white)
-    for _, m in ipairs(monitors) do m.setBackgroundColor(...) endcolors.black)
-    mon.setCursorPos(x,y)
+    eachMon(function(m) end) m.setCursorPos(x1, y1) end)
+    eachMon(function(m) end) m.setBackgroundColor(backColor) end)
+    eachMon(function(m) end) m.setTextColor(textColor) end)
+    eachMon(function(m) end) m.write(text) end)
+    eachMon(function(m) end) m.setTextColor(colors.white) end)
+    eachMon(function(m) end) m.setBackgroundColor(colors.black) end)
+    eachMon(function(m) end) m.setCursorPos(x,y) end)
 end
 
 --Helper method for adding buttons
@@ -220,10 +225,10 @@ local function resetMon()
     if (monSide == nil) then
         return
     end
-    for _, m in ipairs(monitors) do m.setBackgroundColor(...) endcolors.black)
-    for _, m in ipairs(monitors) do m.clear() end
+    eachMon(function(m) end) m.setBackgroundColor(colors.black) end)
+eachMon(function(m) m.clear() end)
     mon.setTextScale(0.5)
-    mon.setCursorPos(1,1)
+    eachMon(function(m) end) m.setCursorPos(1,1) end)
 end
 
 local function getPercPower()
@@ -528,7 +533,7 @@ local function drawScene()
         return
     end
     if (invalidDim) then
-        mon.write("Invalid Monitor Dimensions")
+        eachMon(function(m) end) m.write("Invalid Monitor Dimensions") end)
         return
     end
 
