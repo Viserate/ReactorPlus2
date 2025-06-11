@@ -30,7 +30,26 @@ THE SOFTWARE.
 dofile("/usr/apis/touchpoint.lua")
 
 local reactorVersion, reactor
-local mon, monSide
+-- Multi-monitor setup
+local monitors = {}
+
+-- Detect and wrap all monitors
+for _, name in ipairs(peripheral.getNames()) do
+    if peripheral.getType(name) == "monitor" then
+        local m = peripheral.wrap(name)
+        if m then
+            m.setTextScale(0.5)
+            m.setBackgroundColor(colors.black)
+            m.setTextColor(colors.white)
+            m.clear()
+            table.insert(monitors, m)
+        end
+    end
+end
+
+-- Use first monitor as default for dimension logic
+local mon = monitors[1]
+local monSide = peripheral.getName(mon)
 local sizex, sizey, dim, oo, offy
 local btnOn, btnOff, invalidDim
 local minb, maxb
@@ -79,7 +98,7 @@ local function drawBox(size, xoff, yoff, color)
         return
     end
     local x,y = mon.getCursorPos()
-    mon.setBackgroundColor(color)
+    for _, m in ipairs(monitors) do m.setBackgroundColor(...) end
     local horizLine = string.rep(" ", size[1])
     mon.setCursorPos(xoff + 1, yoff + 1)
     mon.write(horizLine)
@@ -94,7 +113,7 @@ local function drawBox(size, xoff, yoff, color)
         mon.write(" ")
     end
     mon.setCursorPos(x,y)
-    mon.setBackgroundColor(colors.black)
+    for _, m in ipairs(monitors) do m.setBackgroundColor(...) end
 end
 
 --Draw a filled box
@@ -105,12 +124,12 @@ local function drawFilledBox(size, xoff, yoff, colorOut, colorIn)
     local horizLine = string.rep(" ", size[1] - 2)
     drawBox(size, xoff, yoff, colorOut)
     local x,y = mon.getCursorPos()
-    mon.setBackgroundColor(colorIn)
+    for _, m in ipairs(monitors) do m.setBackgroundColor(...) endcolorIn)
     for i=2, size[2] - 1 do
         mon.setCursorPos(xoff + 2, yoff + i)
         mon.write(horizLine)
     end
-    mon.setBackgroundColor(colors.black)
+    for _, m in ipairs(monitors) do m.setBackgroundColor(...) endcolors.black)
     mon.setCursorPos(x,y)
 end
 
@@ -121,11 +140,11 @@ local function drawText(text, x1, y1, backColor, textColor)
     end
     local x, y = mon.getCursorPos()
     mon.setCursorPos(x1, y1)
-    mon.setBackgroundColor(backColor)
+    for _, m in ipairs(monitors) do m.setBackgroundColor(...) endbackColor)
     mon.setTextColor(textColor)
     mon.write(text)
     mon.setTextColor(colors.white)
-    mon.setBackgroundColor(colors.black)
+    for _, m in ipairs(monitors) do m.setBackgroundColor(...) endcolors.black)
     mon.setCursorPos(x,y)
 end
 
@@ -201,8 +220,8 @@ local function resetMon()
     if (monSide == nil) then
         return
     end
-    mon.setBackgroundColor(colors.black)
-    mon.clear()
+    for _, m in ipairs(monitors) do m.setBackgroundColor(...) endcolors.black)
+    for _, m in ipairs(monitors) do m.clear() end
     mon.setTextScale(0.5)
     mon.setCursorPos(1,1)
 end
